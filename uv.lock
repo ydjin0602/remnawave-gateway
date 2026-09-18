@@ -1102,7 +1102,7 @@ wheels = [
 [[package]]
 name = "remnawave"
 version = "2.8.0"
-source = { git = "https://github.com/ydjin0602/remnawave-sdk.git?rev=production#860f14008dfecae2f6ba34b25f43b3a787ae6a22" }
+source = { git = "https://github.com/ydjin0602/remnawave-sdk.git?rev=production#e11e83aa37aee9564ffde924296ef8db6588929e" }
 dependencies = [
     { name = "cryptography" },
     { name = "httpx" },
