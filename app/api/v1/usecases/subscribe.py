@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from loguru import logger
 from remnawave import RemnawaveSDK
 from remnawave.exceptions import ConflictError
@@ -74,6 +76,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
             created = await self._remnawave.users.create_user(
                 CreateUserRequestDto(
                     username=username,
+                    uuid=uuid4(),
                     **mutable_fields,
                 ),
             )
