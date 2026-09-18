@@ -76,7 +76,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
             created = await self._remnawave.users.create_user(
                 CreateUserRequestDto(
                     username=username,
-                    uuid=uuid4(),
+                    short_uuid=str(uuid4()),
                     **mutable_fields,
                 ),
             )
