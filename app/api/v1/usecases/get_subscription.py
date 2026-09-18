@@ -30,14 +30,14 @@ class GetSubscriptionUsecase(Usecase[GetSubscriptionSchema, PlainTextResponse]):
     async def __call__(self, data: GetSubscriptionSchema) -> PlainTextResponse:
         """Отдает содержимое подписки (b64/json/clash по UA клиента)."""
         try:
-            user = await self._remnawave.users.get_user_by_uuid(
-                str(data.subscription_id),
+            sub = await self._remnawave.subscriptions.get_subscription_by_short_uuid(
+                short_uuid=str(data.subscription_id),
             )
         except RemnawaveNotFoundError as e:
             raise NotFoundError(message='Подписка не найдена!') from e
 
         upstream = await self._http.get(
-            user.subscription_url,
+            sub.subscription_url,
             headers={'User-Agent': data.user_agent},
         )
         upstream.raise_for_status()
