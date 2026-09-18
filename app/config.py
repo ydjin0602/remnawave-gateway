@@ -43,12 +43,29 @@ class RemnawaveSettings(BaseModel):
 
     base_url: str = 'http://localhost:3000'
     api_key: str = ''
+    webhook_secret: str = ''
     request_timeout: int = 20
+
+
+class GatewaySettings(BaseModel):
+    """Публичный адрес гейтвея — из него строятся урлы подписки для клиентов."""
+
+    public_base_url: str = 'http://localhost:8000'
+
+    @property
+    def subscription_url_tmp(self) -> str:
+        """Шаблон урла подписки на домене гейтвея."""
+        return f'{self.public_base_url}/api/v1/sub/{{id}}'
+
+    @property
+    def incy_redirect_tmp(self) -> str:
+        """Шаблон диплинка автонастройки incy."""
+        return f'incy://import/{self.subscription_url_tmp}'
 
 
 class KafkaSettings(BaseModel):
     bootstrap_servers: str = 'localhost:9092'
-    common_topic: str = 'remnawave-gateway'
+    common_topic: str = 'subscription_expiration'
 
 
 class Settings(BaseSettings):
@@ -67,6 +84,7 @@ class Settings(BaseSettings):
     swagger: SwaggerSettings = SwaggerSettings()
     auth: AuthSettings
     remnawave: RemnawaveSettings = RemnawaveSettings()
+    gateway: GatewaySettings = GatewaySettings()
     kafka: KafkaSettings = KafkaSettings()
 
 

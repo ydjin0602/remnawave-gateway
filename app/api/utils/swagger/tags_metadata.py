@@ -17,4 +17,9 @@ def get_tags_metadata() -> list[dict]:
             'description': 'Подписки',
             'parent': 'Client',
         },
+        {
+            'name': 'Client|Hooks',
+            'description': 'Хуки внешних систем',
+            'parent': 'Client',
+        },
     ]

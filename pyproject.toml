@@ -12,9 +12,9 @@ dependencies = [
     "pydantic-settings==2.11.0",
     "starlette-exporter==0.23.0",
     "dishka==1.7.2",
-    "aiohttp>=3.13.3",
     "tenacity>=9.1.4",
     "faststream[confluent]>=0.6.7",
+    "remnawave>=2.8.0",
 ]
 
 [dependency-groups]

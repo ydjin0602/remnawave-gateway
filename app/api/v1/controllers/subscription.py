@@ -4,19 +4,16 @@ from dishka import FromDishka as Depends
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter
 from fastapi import Depends as FastAPIDepends
+from fastapi import Request
 from starlette.responses import PlainTextResponse
 from starlette.responses import RedirectResponse
-from starlette.status import HTTP_204_NO_CONTENT
 
-from app.api.utils.enums.app_enum import AppEnum
 from app.api.utils.security import authenticate_by_api_key
 from app.api.v1.schemas.subscription import CreateSubscriptionSchema
 from app.api.v1.schemas.subscription import GetSubscriptionSchema
-from app.api.v1.schemas.subscription import RevokeSubscriptionsSchema
 from app.api.v1.schemas.subscription import SubscriptionSchema
 from app.api.v1.usecases.get_subscription import GetSubscriptionUsecase
 from app.api.v1.usecases.incy_redirect import IncyRedirectUsecase
-from app.api.v1.usecases.revoke_subscription import RevokeSubscriptionUsecase
 from app.api.v1.usecases.subscribe import SubscribeUsecase
 
 ROUTER = APIRouter(
@@ -63,12 +60,13 @@ async def incy_redirect(
 )
 async def get_incy_subscription(
     subscription_id: UUID,
+    request: Request,
     usecase: Depends[GetSubscriptionUsecase],
 ) -> PlainTextResponse:
     return await usecase(
         data=GetSubscriptionSchema(
             subscription_id=subscription_id,
-            app=AppEnum.INCY,
+            user_agent=request.headers.get('user-agent', ''),
         ),
     )
 
@@ -81,26 +79,12 @@ async def get_incy_subscription(
 )
 async def get_subscription(
     subscription_id: UUID,
+    request: Request,
     usecase: Depends[GetSubscriptionUsecase],
 ) -> PlainTextResponse:
     return await usecase(
         data=GetSubscriptionSchema(
             subscription_id=subscription_id,
+            user_agent=request.headers.get('user-agent', ''),
         ),
-    )
-
-
-@ROUTER.delete(
-    '/',
-    name='Ручка для отмены подписок',
-    description='Фактически мы принудительно завершаем подписку с момента вызова '
-    'ручки.',
-    status_code=HTTP_204_NO_CONTENT,
-)
-async def revoke_subscription(
-    payload: RevokeSubscriptionsSchema,
-    usecase: Depends[RevokeSubscriptionUsecase],
-) -> None:
-    await usecase(
-        data=payload,
     )
