@@ -1102,17 +1102,13 @@ wheels = [
 [[package]]
 name = "remnawave"
 version = "2.8.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/ydjin0602/remnawave-sdk.git?rev=production#860f14008dfecae2f6ba34b25f43b3a787ae6a22" }
 dependencies = [
     { name = "cryptography" },
     { name = "httpx" },
     { name = "orjson" },
     { name = "pydantic", extra = ["email"] },
     { name = "rapid-api-client" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/25/f2/70034a719685a46dadc6e3f77122f991bda7f29af8b80ef5c176f8d525c0/remnawave-2.8.0.tar.gz", hash = "sha256:e1bafd65f77d0352eda96acc061d4275bb3b3d77db89a9549ed5e66849538c0e", size = 64513, upload-time = "2026-07-02T00:49:54.078Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/fc/14/fccb15c25833c2e5a950a1faf721089611dc33b0c0767903034885726f01/remnawave-2.8.0-py3-none-any.whl", hash = "sha256:ca9d004cdf32b2a0504442f809f0c6dabe9bfb8857dd1f00e3ecca3998502f02", size = 98173, upload-time = "2026-07-02T00:49:52.464Z" },
 ]
 
 [[package]]
@@ -1152,7 +1148,7 @@ requires-dist = [
     { name = "loguru", specifier = "==0.7.3" },
     { name = "orjson", specifier = "==3.11.4" },
     { name = "pydantic-settings", specifier = "==2.11.0" },
-    { name = "remnawave", specifier = ">=2.8.0" },
+    { name = "remnawave", git = "https://github.com/ydjin0602/remnawave-sdk.git?rev=production" },
     { name = "starlette-exporter", specifier = "==0.23.0" },
     { name = "tenacity", specifier = ">=9.1.4" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.38.0" },

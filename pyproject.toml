@@ -14,7 +14,7 @@ dependencies = [
     "dishka==1.7.2",
     "tenacity>=9.1.4",
     "faststream[confluent]>=0.6.7",
-    "remnawave>=2.8.0",
+    "remnawave @ git+https://github.com/ydjin0602/remnawave-sdk.git@production",
 ]
 
 [dependency-groups]
