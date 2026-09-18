@@ -1,3 +1,5 @@
+from datetime import UTC
+from datetime import datetime
 from uuid import uuid4
 
 from loguru import logger
@@ -53,12 +55,17 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
     async def _upsert_user(self, data: CreateSubscriptionSchema) -> TUserResponse:
         """Создает юзера ремны или продлевает существующего."""
         username = str(data.user_id)
+        squad = (
+            config.remnawave.default_squad_uuid
+            if data.expires_at > datetime.now(tz=UTC)
+            else config.remnawave.expires_squad_uuid
+        )
         mutable_fields = {
             'expire_at': data.expires_at,
             'traffic_limit_bytes': data.traffic_limit * GIGABYTE,
             'hwid_device_limit': data.connections_limit,
             'telegram_id': data.user_id,
-            'active_internal_squads': [config.remnawave.default_squad_uuid],
+            'active_internal_squads': [squad],
         }
 
         existing = await self._find_user(username)

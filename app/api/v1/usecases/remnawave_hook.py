@@ -3,8 +3,10 @@ from typing import Any
 
 from faststream.confluent import KafkaBroker
 from loguru import logger
+from remnawave import RemnawaveSDK
 from remnawave import WebhookUtility
 from remnawave.controllers.webhooks import UserDto
+from remnawave.models.users import UpdateUserRequestDto
 
 from app.api.utils.enums.remnawave_ntfy_events import RemnawaveNtfyEvents
 from app.api.utils.exceptions import AuthenticationError
@@ -15,8 +17,9 @@ from app.config import config
 
 
 class RemnawaveHookUsecase(Usecase[RemnawaveHookSchema, None]):
-    def __init__(self, kafka_broker: KafkaBroker) -> None:
+    def __init__(self, kafka_broker: KafkaBroker, remnawave: RemnawaveSDK) -> None:
         self._kafka = kafka_broker
+        self._remnawave = remnawave
 
     async def __call__(self, data: RemnawaveHookSchema) -> None:
         """Проверяет подпись, фильтрует события, публикует в Kafka."""
@@ -47,6 +50,13 @@ class RemnawaveHookUsecase(Usecase[RemnawaveHookSchema, None]):
         meta: dict[str, Any] = loads(data.body).get('meta') or {}
 
         if event == RemnawaveNtfyEvents.USER_EXPIRED_EVENT:
+            await self._remnawave.users.update_user(
+                UpdateUserRequestDto(
+                    username=user.username,
+                    active_internal_squads=[config.remnawave.expires_squad_uuid],
+                ),
+            )
+            logger.debug('User {} moved to expires squad', user.username)
             tempo_days = 0
         else:
             interval_hours = meta.get('expiration')

@@ -32,9 +32,10 @@ class UsecaseProvider(Provider):
     async def remnawave_hook_scope(
         self,
         kafka_broker: KafkaBroker,
+        remnawave: RemnawaveSDK,
     ) -> RemnawaveHookUsecase:
         """DI Scope для RemnawaveHookUsecase."""
-        return RemnawaveHookUsecase(kafka_broker=kafka_broker)
+        return RemnawaveHookUsecase(kafka_broker=kafka_broker, remnawave=remnawave)
 
     @provide
     async def incy_redirect_scope(self) -> IncyRedirectUsecase:
