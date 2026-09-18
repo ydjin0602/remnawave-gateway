@@ -1,5 +1,6 @@
 from json import loads
 from typing import Any
+from uuid import UUID
 
 from faststream.confluent import KafkaBroker
 from loguru import logger
@@ -74,7 +75,7 @@ class RemnawaveHookUsecase(Usecase[RemnawaveHookSchema, None]):
             return
 
         message = SoonSubscriptionExpirationSchema(
-            id=user.uuid,
+            id=UUID(user.short_uuid),
             user_id=user.telegram_id,
             expires_at=user.expire_at,
             tempo_days=tempo_days,
