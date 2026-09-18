@@ -40,7 +40,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
         effective_expires_at = expire_at (стратегия NO_RESET).
         """
         return SubscriptionSchema(
-            id=user.uuid,
+            id=user.short_uuid,
             user_id=user.username,
             traffic_limit=user.traffic_limit_bytes // GIGABYTE,
             connections_limit=user.hwid_device_limit or 0,
@@ -66,7 +66,6 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
         if existing:
             updated = await self._remnawave.users.update_user(
                 UpdateUserRequestDto(
-                    uuid=existing.uuid,
                     username=username,
                     **mutable_fields,
                 ),
@@ -89,7 +88,6 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
                 raise
             return await self._remnawave.users.update_user(
                 UpdateUserRequestDto(
-                    uuid=existing.uuid,
                     username=username,
                     **mutable_fields,
                 ),
