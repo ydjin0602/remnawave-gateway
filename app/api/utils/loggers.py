@@ -6,8 +6,9 @@ from datetime import UTC
 from datetime import datetime
 from typing import Any
 
+import orjson
+
 from loguru import logger
-from orjson import orjson
 
 from app.api.utils.enums.env_enum import EnvEnum
 from app.config import config

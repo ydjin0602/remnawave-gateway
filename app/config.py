@@ -1,4 +1,3 @@
-from http import HTTPMethod
 from typing import Any
 
 from dotenv import find_dotenv
@@ -6,14 +5,13 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
-from sqlalchemy import URL
 
 from app.api.utils.enums.env_enum import EnvEnum
 from app.api.utils.enums.log_level_enum import LogLevelEnum
 
 
 class CommonSettings(BaseModel):
-    project_name: str = 'template_service'
+    project_name: str = 'remnawave-gateway'
     environment: EnvEnum
     log_level: LogLevelEnum = LogLevelEnum.INFO
     human_readable_logs: bool = False
@@ -37,38 +35,20 @@ class SwaggerSettings(BaseModel):
 
 
 class AuthSettings(BaseModel):
-    # FIXME: Тут должны быть переменные для авторизации
-    safe_http_methods: tuple[HTTPMethod, ...] = (
-        HTTPMethod.GET,
-        HTTPMethod.HEAD,
-        HTTPMethod.OPTIONS,
-        HTTPMethod.TRACE,
-    )
-    csrf_expire_time: int = 31536000  # 365 * 24 * 60 * 60
-    csrf_cookie_name: str = 'csrftoken'
-    csrf_header_name: str = 'X-CSRFToken'
+    api_key: str
 
 
-class PostgresSettings(BaseModel):
-    host: str = 'localhost'
-    port: int = 5432
-    user: str | None = 'postgres'
-    password: str | None = 'example'
-    db: str | None = 'template_schema'
-    pool_size: int = 10  # Размер пула соединений алхимии
-    overflow_pool_size: int = 20  # Размер очереди соединений
+class RemnawaveSettings(BaseModel):
+    """Настройки клиента Remnawave API."""
 
-    @property
-    def database_uri(self) -> URL:
-        """Собираем PG-URI."""
-        return URL.create(
-            drivername='postgresql+asyncpg',
-            username=self.user,
-            password=self.password,
-            host=self.host,
-            port=self.port,
-            database=self.db,
-        )
+    base_url: str = 'http://localhost:3000'
+    api_key: str = ''
+    request_timeout: int = 20
+
+
+class KafkaSettings(BaseModel):
+    bootstrap_servers: str = 'localhost:9092'
+    common_topic: str = 'remnawave-gateway'
 
 
 class Settings(BaseSettings):
@@ -85,8 +65,9 @@ class Settings(BaseSettings):
 
     common: CommonSettings
     swagger: SwaggerSettings = SwaggerSettings()
-    auth: AuthSettings = AuthSettings()
-    postgres: PostgresSettings = PostgresSettings()
+    auth: AuthSettings
+    remnawave: RemnawaveSettings = RemnawaveSettings()
+    kafka: KafkaSettings = KafkaSettings()
 
 
 config = Settings()

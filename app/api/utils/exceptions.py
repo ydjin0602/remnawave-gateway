@@ -23,6 +23,15 @@ class BaseError(Exception):
     def __str__(self) -> str:
         return f'{self.__class__.__name__}: {self.message}'
 
+    def __repr__(self) -> str:
+        return (
+            f'{self.__class__.__name__}('
+            f'message={self.message},'
+            f' internal_status_code={self.internal_status_code},'
+            f' status_code={self.status_code}'
+            f')'
+        )
+
 
 class AuthenticationError(BaseError):
     def __init__(
@@ -37,34 +46,11 @@ class AuthenticationError(BaseError):
         )
 
 
-class DatabaseError(BaseError):
+class NotFoundError(BaseError):
     def __init__(
         self,
         message: str,
-        internal_status_code: InternalErrorEnum = InternalErrorEnum.INTERNAL_ERROR,
-        status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR,
-    ) -> None:
-        super().__init__(
-            message=message,
-            internal_status_code=internal_status_code,
-            status_code=status_code,
-        )
-
-
-class UniqueError(BaseError):
-    def __init__(self, model_name: str) -> None:
-        super().__init__(
-            status_code=status.HTTP_409_CONFLICT,
-            message=f'Поля переданные в модель {model_name} содержат '
-            f'неуникальные значения!',
-        )
-
-
-class NotFoundError(DatabaseError):
-    def __init__(
-        self,
-        message: str,
-        internal_status_code: InternalErrorEnum = InternalErrorEnum.INTERNAL_ERROR,
+        internal_status_code: InternalErrorEnum = InternalErrorEnum.NOT_FOUND,
     ) -> None:
         super().__init__(
             message=message,

@@ -71,7 +71,7 @@ class RouterLoggingMiddleware(BaseHTTPMiddleware):
 
         """
         request_id: str = str(uuid4())
-        response_dict = {}
+        response_dict: dict[str, Any] = {}
         exception = None
 
         start_time = time.perf_counter()
@@ -169,7 +169,7 @@ class RouterLoggingMiddleware(BaseHTTPMiddleware):
         request_logging = {
             'method': request.method,
             'path': path,
-            'ip': request.client.host,
+            'ip': request.client.host if request.client else '-',
             'headers': self._sanitaze_log(dict(request.headers)),
         }
 

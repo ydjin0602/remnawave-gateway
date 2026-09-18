@@ -1,10 +1,7 @@
-from collections.abc import AsyncGenerator
-
 from dishka import Provider
 from dishka import Scope
 from dishka import provide
-from sqlalchemy.ext.asyncio import AsyncEngine
-from sqlalchemy.ext.asyncio import create_async_engine
+from faststream.confluent import KafkaBroker
 
 from app.config import config
 
@@ -13,15 +10,9 @@ class ApplicationProvider(Provider):
     scope = Scope.APP
 
     @provide
-    async def pg_engine_scope(self) -> AsyncGenerator[AsyncEngine]:
-        """DI Scope для AsyncEngine."""
-        engine = create_async_engine(
-            config.postgres.database_uri,
-            pool_size=config.postgres.pool_size,
-            max_overflow=config.postgres.overflow_pool_size,
-            pool_pre_ping=True,
-            isolation_level='AUTOCOMMIT',
-            # echo=True,
+    async def kafka_broker_scope(self) -> KafkaBroker:
+        """DI Scope для KafkaBroker."""
+        return KafkaBroker(
+            bootstrap_servers=config.kafka.bootstrap_servers,
+            # allow_auto_create_topics=False,
         )
-        yield engine
-        await engine.dispose()

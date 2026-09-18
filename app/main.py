@@ -6,6 +6,7 @@ import uvicorn
 from dishka.integrations import fastapi as fastapi_integration
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from faststream.confluent import KafkaBroker
 from loguru import logger
 
 from app.api.di import DI_CONTAINER
@@ -20,10 +21,7 @@ from app.config import config
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    """Новый вариант евентов в фастапи. Старые стали депрекейтед.
-
-    https://fastapi.tiangolo.com/advanced/events/#lifespan
-    """
+    """Lifespan."""
 
     if config.common.struct_log:
         await init_logger()
@@ -37,11 +35,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 async def _warmup_dependencies() -> None:
     """Принудительная инициализация критичных зависимостей при старте."""
-    # FIXME: В dishka lazy зависимости инициализируются только при первом обращении
-    #  Поэтому мы принудительно инициализируем критичные зависимости при старте
-    #  Например, нам важно чтобы тг бот при старте приложения привязывался за вебхук.
-    #  await DI_CONTAINER.get(MyTGBot)
-    pass
+    # ____KAFKA_BROKER____
+    kafka_broker = await DI_CONTAINER.get(KafkaBroker)
+    await kafka_broker.start()
 
 
 def get_fastapi_app(logging_middleware: bool = True) -> FastAPI:
@@ -53,7 +49,7 @@ def get_fastapi_app(logging_middleware: bool = True) -> FastAPI:
     fast_api_app = FastAPI(
         default_response_class=ORJSONResponse,
         title=config.common.project_name,
-        description='Описание супер крутого микросервиса',
+        description='Сервис remnawave-gateway',
         openapi_tags=get_tags_metadata(),
         version='0.0.1',
         docs_url=None,
@@ -63,7 +59,10 @@ def get_fastapi_app(logging_middleware: bool = True) -> FastAPI:
     )
     setup_exception_handlers(fast_api_app)
     if logging_middleware:
-        fast_api_app.add_middleware(RouterLoggingMiddleware, current_logger=logger)
+        fast_api_app.add_middleware(
+            RouterLoggingMiddleware,  # type: ignore[arg-type]
+            current_logger=logger,
+        )
 
     # TODO: Раскомментить при необходимости
     # Set all CORS enabled origins
@@ -78,13 +77,6 @@ def get_fastapi_app(logging_middleware: bool = True) -> FastAPI:
     #         allow_headers=['*'],
     #     )
 
-    # if config.common.backend_cors_origins:
-    #     fast_api_app.add_middleware(
-    #         CSRFMiddleware,
-    #         allowed_hosts=[
-    #             str(origin) for origin in config.common.backend_cors_origins
-    #         ],
-    #     )
     if config.common.prometheus_enabled:
         # Докуменатция по експортеру и дополнительным метрикам
         # "https://github.com/stephenhillier/starlette_exporter?tab=readme-ov-file#custom-metrics"
