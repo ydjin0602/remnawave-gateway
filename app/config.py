@@ -45,6 +45,8 @@ class RemnawaveSettings(BaseModel):
     api_key: str = ''
     webhook_secret: str = ''
     request_timeout: int = 20
+    default_squad_uuid: str = ''
+    expires_squad_uuid: str = ''
 
 
 class GatewaySettings(BaseModel):

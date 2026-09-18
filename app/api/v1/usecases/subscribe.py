@@ -13,6 +13,7 @@ from remnawave.models.users import UpdateUserResponseDto
 from app.api.utils.usecase import Usecase
 from app.api.v1.schemas.subscription import CreateSubscriptionSchema
 from app.api.v1.schemas.subscription import SubscriptionSchema
+from app.config import config
 
 GIGABYTE = 2**30
 
@@ -57,6 +58,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
             'traffic_limit_bytes': data.traffic_limit * GIGABYTE,
             'hwid_device_limit': data.connections_limit,
             'telegram_id': data.user_id,
+            'active_internal_squads': [config.remnawave.default_squad_uuid],
         }
 
         existing = await self._find_user(username)
