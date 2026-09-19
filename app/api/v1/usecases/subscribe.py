@@ -6,11 +6,9 @@ from loguru import logger
 from remnawave import RemnawaveSDK
 from remnawave.exceptions import ConflictError
 from remnawave.exceptions import NotFoundError
-from remnawave.models.users import CreateUserRequestDto
-from remnawave.models.users import CreateUserResponseDto
-from remnawave.models.users import GetUserByUsernameResponseDto
-from remnawave.models.users import UpdateUserRequestDto
-from remnawave.models.users import UpdateUserResponseDto
+from remnawave.models import CreateUserBodyDto
+from remnawave.models import UpdateUserBodyDto
+from remnawave.models import UserResponseDto
 
 from app.api.utils.usecase import Usecase
 from app.api.v1.schemas.subscription import CreateSubscriptionSchema
@@ -18,11 +16,6 @@ from app.api.v1.schemas.subscription import SubscriptionSchema
 from app.config import config
 
 GIGABYTE = 2**30
-
-
-type TUserResponse = (
-    CreateUserResponseDto | UpdateUserResponseDto | GetUserByUsernameResponseDto
-)
 
 
 class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
@@ -36,7 +29,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
         user = await self._upsert_user(data)
         return self._to_response(user)
 
-    def _to_response(self, user: TUserResponse) -> SubscriptionSchema:
+    def _to_response(self, user: UserResponseDto) -> SubscriptionSchema:
         """Собирает ответ старого контракта из DTO ремны.
 
         effective_expires_at = expire_at (стратегия NO_RESET).
@@ -44,7 +37,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
         return SubscriptionSchema(
             id=user.short_uuid,
             user_id=user.username,
-            traffic_limit=user.traffic_limit_bytes // GIGABYTE,
+            traffic_limit=int(user.traffic_limit_bytes // GIGABYTE),
             connections_limit=user.hwid_device_limit or 0,
             expires_at=user.expire_at,
             effective_expires_at=user.expire_at,
@@ -52,7 +45,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
             updated_at=user.updated_at,
         )
 
-    async def _upsert_user(self, data: CreateSubscriptionSchema) -> TUserResponse:
+    async def _upsert_user(self, data: CreateSubscriptionSchema) -> UserResponseDto:
         """Создает юзера ремны или продлевает существующего."""
         username = str(data.user_id)
         squad = (
@@ -72,7 +65,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
 
         if existing:
             updated = await self._remnawave.users.update_user(
-                UpdateUserRequestDto(
+                UpdateUserBodyDto(
                     username=username,
                     **mutable_fields,
                 ),
@@ -82,7 +75,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
 
         try:
             created = await self._remnawave.users.create_user(
-                CreateUserRequestDto(
+                CreateUserBodyDto(
                     username=username,
                     short_uuid=str(uuid4()),
                     **mutable_fields,
@@ -94,7 +87,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
             if existing is None:  # pragma: no cover - защитный кейс
                 raise
             return await self._remnawave.users.update_user(
-                UpdateUserRequestDto(
+                UpdateUserBodyDto(
                     username=username,
                     **mutable_fields,
                 ),
@@ -103,7 +96,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
         logger.debug('Subscription created for {}', username)
         return created
 
-    async def _find_user(self, username: str) -> GetUserByUsernameResponseDto | None:
+    async def _find_user(self, username: str) -> UserResponseDto | None:
         try:
             return await self._remnawave.users.get_user_by_username(username)
         except NotFoundError:

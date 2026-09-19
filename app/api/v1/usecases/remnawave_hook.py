@@ -6,8 +6,8 @@ from faststream.confluent import KafkaBroker
 from loguru import logger
 from remnawave import RemnawaveSDK
 from remnawave import WebhookUtility
-from remnawave.controllers.webhooks import UserDto
-from remnawave.models.users import UpdateUserRequestDto
+from remnawave.models import UpdateUserBodyDto
+from remnawave.models.webhook import UserDto
 
 from app.api.utils.enums.remnawave_ntfy_events import RemnawaveNtfyEvents
 from app.api.utils.exceptions import AuthenticationError
@@ -52,7 +52,7 @@ class RemnawaveHookUsecase(Usecase[RemnawaveHookSchema, None]):
 
         if event == RemnawaveNtfyEvents.USER_EXPIRED_EVENT:
             await self._remnawave.users.update_user(
-                UpdateUserRequestDto(
+                UpdateUserBodyDto(
                     username=user.username,
                     active_internal_squads=[config.remnawave.expires_squad_uuid],
                 ),

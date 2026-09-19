@@ -14,8 +14,8 @@ dependencies = [
     "dishka==1.7.2",
     "tenacity>=9.1.4",
     "faststream[confluent]>=0.6.7",
-    "remnawave @ git+https://github.com/ydjin0602/remnawave-sdk.git@production",
-
+    "remnawave-api>=3.4.3",
+    "openpyxl>=3.1.5",
 ]
 
 [dependency-groups]
@@ -39,6 +39,10 @@ build-backend = "hatchling.build"
 
 [tool.mypy]
 python_version = 3.13
+
+[[tool.mypy.overrides]]
+module = ["remnawave.*"]
+ignore_missing_imports = true
 
 
 [tool.pytest.ini_options]
