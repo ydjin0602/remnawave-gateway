@@ -43,11 +43,13 @@ async def subscribe(
 )
 async def incy_redirect(
     subscription_id: UUID,
+    request: Request,
     usecase: Depends[IncyRedirectUsecase],
 ) -> RedirectResponse:
     return await usecase(
         data=GetSubscriptionSchema(
             subscription_id=subscription_id,
+            headers=request.headers,
         ),
     )
 
@@ -66,7 +68,7 @@ async def get_incy_subscription(
     return await usecase(
         data=GetSubscriptionSchema(
             subscription_id=subscription_id,
-            user_agent=request.headers.get('user-agent', ''),
+            headers=request.headers,
         ),
     )
 

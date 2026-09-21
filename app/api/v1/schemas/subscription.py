@@ -37,4 +37,4 @@ class SubscriptionSchema(BaseSchema):
 
 class GetSubscriptionSchema(BaseSchema):
     subscription_id: UUID
-    headers: dict[str, Any] | None
+    headers: dict[str, Any]
