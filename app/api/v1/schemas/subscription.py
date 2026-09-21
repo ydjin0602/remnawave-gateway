@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import Field
@@ -36,4 +37,4 @@ class SubscriptionSchema(BaseSchema):
 
 class GetSubscriptionSchema(BaseSchema):
     subscription_id: UUID
-    user_agent: str = ''
+    headers: dict[str, Any]

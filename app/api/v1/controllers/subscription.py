@@ -85,6 +85,6 @@ async def get_subscription(
     return await usecase(
         data=GetSubscriptionSchema(
             subscription_id=subscription_id,
-            user_agent=request.headers.get('user-agent', ''),
+            headers=request.headers,
         ),
     )

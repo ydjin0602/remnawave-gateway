@@ -38,7 +38,7 @@ class GetSubscriptionUsecase(Usecase[GetSubscriptionSchema, PlainTextResponse]):
 
         upstream = await self._http.get(
             sub.subscription_url,
-            headers={'User-Agent': data.user_agent},
+            headers=data.headers,
         )
         upstream.raise_for_status()
 
