@@ -16,6 +16,9 @@ dependencies = [
     "faststream[confluent]>=0.6.7",
     "remnawave-api>=3.4.3",
     "openpyxl>=3.1.5",
+    "taskiq>=0.12.1,<0.13",
+    "taskiq-redis>=1.2.1",
+    "redis>=7.2.1",
 ]
 
 [dependency-groups]

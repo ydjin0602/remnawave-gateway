@@ -3,6 +3,7 @@ from typing import Any
 from dotenv import find_dotenv
 from dotenv import load_dotenv
 from pydantic import BaseModel
+from pydantic import RedisDsn
 from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
 
@@ -27,6 +28,7 @@ class CommonSettings(BaseModel):
 
     prometheus_enabled: bool = True
     struct_log: bool = True
+    batch_limit: int = 100
 
 
 class SwaggerSettings(BaseModel):
@@ -68,6 +70,36 @@ class GatewaySettings(BaseModel):
 class KafkaSettings(BaseModel):
     bootstrap_servers: str = 'localhost:9092'
     common_topic: str = 'subscription_expiration'
+    init_repeat_purchase_topic: str = 'init_repeat_purchase'
+
+
+class RedisSettings(BaseModel):
+    host: str = 'localhost'
+    port: int = 6379
+    username: str | None = None
+    password: str | None = None
+
+    # TASKIQ
+    taskiq_channel_tmp: str = 'taskiq_{project_name}'
+    taskiq_consumer_group_name_tmp: str = 'taskiq_group_{project_name}'
+    taskiq_broker_consumer_tmp: str = 'taskiq_{project_name}'
+
+    @property
+    def broker_url(self) -> str:
+        """Получение ссылки сервиса."""
+        return str(
+            RedisDsn.build(
+                scheme='redis',
+                username=self.username,
+                password=self.password,
+                host=self.host,
+                port=self.port,
+            )
+        )
+
+
+class CRONSettings(BaseModel):
+    init_repeat_purchase: str = '0 9 * * *'
 
 
 class Settings(BaseSettings):
@@ -88,6 +120,8 @@ class Settings(BaseSettings):
     remnawave: RemnawaveSettings = RemnawaveSettings()
     gateway: GatewaySettings = GatewaySettings()
     kafka: KafkaSettings = KafkaSettings()
+    redis: RedisSettings = RedisSettings()
+    cron: CRONSettings = CRONSettings()
 
 
 config = Settings()
