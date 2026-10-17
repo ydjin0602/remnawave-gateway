@@ -7,6 +7,7 @@ from remnawave import RemnawaveSDK
 
 from app.api.v1.usecases.get_subscription import GetSubscriptionUsecase
 from app.api.v1.usecases.incy_redirect import IncyRedirectUsecase
+from app.api.v1.usecases.init_repeat_purchase import InitRepeatPurchaseUsecase
 from app.api.v1.usecases.remnawave_hook import RemnawaveHookUsecase
 from app.api.v1.usecases.subscribe import SubscribeUsecase
 
@@ -41,3 +42,15 @@ class UsecaseProvider(Provider):
     async def incy_redirect_scope(self) -> IncyRedirectUsecase:
         """DI Scope для IncyRedirectUsecase."""
         return IncyRedirectUsecase()
+
+    @provide
+    async def init_repeat_purchase_scope(
+        self,
+        kafka_broker: KafkaBroker,
+        remnawave: RemnawaveSDK,
+    ) -> InitRepeatPurchaseUsecase:
+        """DI Scope для InitRepeatPurchaseUsecase."""
+        return InitRepeatPurchaseUsecase(
+            kafka_broker=kafka_broker,
+            remnawave=remnawave,
+        )
