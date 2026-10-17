@@ -49,6 +49,9 @@ class RemnawaveSettings(BaseModel):
     request_timeout: int = 20
     default_squad_uuid: str = ''
     expires_squad_uuid: str = ''
+    cycle_period_days: int = 90
+    min_days_after_expire: int = 30
+    stream_page_size: int = 1000
 
 
 class GatewaySettings(BaseModel):

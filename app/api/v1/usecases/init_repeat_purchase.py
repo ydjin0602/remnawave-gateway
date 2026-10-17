@@ -12,29 +12,17 @@ from app.api.utils.usecase import Usecase
 from app.api.v1.schemas.init_repeat_purchase import InitRepeatPurchaseOfferSchema
 from app.config import config
 
-CYCLE_PERIOD_DAYS = 90
-MIN_DAYS_AFTER_EXPIRE = 30
-STREAM_PAGE_SIZE = 1000
 
-
-class InitRepeatPurchaseUsecase(Usecase[None, dict[str, int]]):
-    """Продюсер цикла 30/60/90 «Инициация повторной покупки».
-
-    Итерирует истёкших юзеров ремны курсорной пагинацией (GET /users/stream,
-    фильтр status=EXPIRED — активных панель не отдаёт), отбирает истёкших
-    ≥30 дней назад по mod 90 и публикует события в общий топик.
-    Про ботов ничего не знает — роутинг в port-users.
-    """
-
+class InitRepeatPurchaseUsecase(Usecase[None, None]):
     def __init__(
         self,
         kafka_broker: KafkaBroker,
         remnawave: RemnawaveSDK,
     ) -> None:
-        self._kafka = kafka_broker
-        self._remnawave = remnawave
+        self.kafka_broker = kafka_broker
+        self.remnawave = remnawave
 
-    async def __call__(self, data: None = None) -> dict[str, int]:
+    async def __call__(self, data: None = None) -> None:
         """Прогон по всем юзерам → паблиш событий цикла → сводка."""
         today = datetime.now(tz=UTC).date()
         scanned = 0
@@ -42,8 +30,8 @@ class InitRepeatPurchaseUsecase(Usecase[None, dict[str, int]]):
 
         cursor: str | None = None
         while True:
-            response = await self._remnawave.users.get_users_stream(
-                size=STREAM_PAGE_SIZE,
+            response = await self.remnawave.users.get_users_stream(
+                size=config.remnawave.stream_page_size,
                 cursor=cursor,
                 status=UserStatus.EXPIRED,
             )
@@ -74,8 +62,8 @@ class InitRepeatPurchaseUsecase(Usecase[None, dict[str, int]]):
         published = 0
         for chunk in batched(payloads, config.common.batch_limit, strict=False):
             try:
-                await self._kafka.start()
-                await self._kafka.publish_batch(
+                await self.kafka_broker.start()
+                await self.kafka_broker.publish_batch(
                     *chunk,
                     topic=config.kafka.init_repeat_purchase_topic,
                 )
@@ -92,16 +80,15 @@ class InitRepeatPurchaseUsecase(Usecase[None, dict[str, int]]):
             scanned,
             published,
         )
-        return {'scanned': scanned, 'published': published}
 
     @staticmethod
     def _tempo_days(expire_at: datetime, today: date) -> int | None:
         """Позиция шага в 90-дневном цикле или None (не кандидат)."""
         days = (today - expire_at.date()).days
-        if days < MIN_DAYS_AFTER_EXPIRE:
+        if days < config.remnawave.min_days_after_expire:
             return None
 
-        remainder = days % CYCLE_PERIOD_DAYS
+        remainder = days % config.remnawave.cycle_period_days
         if remainder == 30:
             return 30
         if remainder == 60:

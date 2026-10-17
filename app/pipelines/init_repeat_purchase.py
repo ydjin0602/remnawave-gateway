@@ -25,8 +25,5 @@ async def init_repeat_purchase_task(
     отбирает истёкших ≥30 дней по mod 90 и публикует события в общий топик.
     """
     logger.info('Запускаю крон цикла 30/60/90 «Инициация повторной покупки»')
-    summary = await usecase()
-    logger.success(
-        f'Цикл 30/60/90: просканировано {summary["scanned"]} юзеров, '
-        f'опубликовано {summary["published"]} событий'
-    )
+    await usecase()
+    logger.success('Крон цикла 30/60/90 «Инициация повторной покупки» завершен')
