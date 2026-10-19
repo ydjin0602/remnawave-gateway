@@ -10,7 +10,7 @@ class SoonSubscriptionExpirationSchema(BaseSchema):
     id: UUID = Field(description='uuid юзера ремны')
     user_id: int = Field(description='tg-id юзера')
     expires_at: datetime = Field(description='дата истечения подписки')
-    tempo_days: int = Field(description='шаг воронки: 0|1|3|5|12|19')
+    tempo_days: int = Field(description='шаг воронки: 7|6|3|2|1|0 (дни до истечения)')
 
 
 class RemnawaveHookSchema(BaseSchema):
