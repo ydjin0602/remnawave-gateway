@@ -11,8 +11,10 @@ from starlette.responses import RedirectResponse
 from app.api.utils.security import authenticate_by_api_key
 from app.api.v1.schemas.subscription import CreateSubscriptionSchema
 from app.api.v1.schemas.subscription import GetSubscriptionSchema
+from app.api.v1.schemas.subscription import GetUserSubscriptionSchema
 from app.api.v1.schemas.subscription import SubscriptionSchema
 from app.api.v1.usecases.get_subscription import GetSubscriptionUsecase
+from app.api.v1.usecases.get_user_subscription import GetUserSubscriptionUsecase
 from app.api.v1.usecases.incy_redirect import IncyRedirectUsecase
 from app.api.v1.usecases.subscribe import SubscribeUsecase
 
@@ -33,6 +35,20 @@ async def subscribe(
     usecase: Depends[SubscribeUsecase],
 ) -> SubscriptionSchema:
     return await usecase(data=payload)
+
+
+@ROUTER.get(
+    '/user/{user_id}',
+    name='Ручка для получения метаданных подписки по tg-id юзера',
+    description='Состояние подписки из ремны: short_uuid, лимиты, дата истечения',
+    response_model=SubscriptionSchema,
+    dependencies=[FastAPIDepends(authenticate_by_api_key)],
+)
+async def get_user_subscription(
+    user_id: int,
+    usecase: Depends[GetUserSubscriptionUsecase],
+) -> SubscriptionSchema:
+    return await usecase(data=GetUserSubscriptionSchema(user_id=user_id))
 
 
 @ROUTER.get(

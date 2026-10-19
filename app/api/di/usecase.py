@@ -6,6 +6,7 @@ from httpx import AsyncClient
 from remnawave import RemnawaveSDK
 
 from app.api.v1.usecases.get_subscription import GetSubscriptionUsecase
+from app.api.v1.usecases.get_user_subscription import GetUserSubscriptionUsecase
 from app.api.v1.usecases.incy_redirect import IncyRedirectUsecase
 from app.api.v1.usecases.init_repeat_purchase import InitRepeatPurchaseUsecase
 from app.api.v1.usecases.remnawave_hook import RemnawaveHookUsecase
@@ -28,6 +29,14 @@ class UsecaseProvider(Provider):
     ) -> GetSubscriptionUsecase:
         """DI Scope для GetSubscriptionUsecase."""
         return GetSubscriptionUsecase(remnawave=remnawave, http=http)
+
+    @provide
+    async def get_user_subscription_scope(
+        self,
+        remnawave: RemnawaveSDK,
+    ) -> GetUserSubscriptionUsecase:
+        """DI Scope для GetUserSubscriptionUsecase."""
+        return GetUserSubscriptionUsecase(remnawave=remnawave)
 
     @provide
     async def remnawave_hook_scope(
