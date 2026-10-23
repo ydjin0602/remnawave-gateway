@@ -29,7 +29,7 @@ class SubscriptionSchema(BaseSchema):
     user_id: str
     traffic_limit: int
     connections_limit: int
-    expires_at: datetime | None
+    expires_at: datetime
     effective_expires_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
@@ -38,3 +38,7 @@ class SubscriptionSchema(BaseSchema):
 class GetSubscriptionSchema(BaseSchema):
     subscription_id: UUID
     headers: dict[str, Any]
+
+
+class GetUserSubscriptionSchema(BaseSchema):
+    user_id: int

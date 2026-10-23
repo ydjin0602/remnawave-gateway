@@ -18,6 +18,23 @@ from app.config import config
 GIGABYTE = 2**30
 
 
+def user_to_subscription_schema(user: UserResponseDto) -> SubscriptionSchema:
+    """Собирает контракт подписки из DTO ремны.
+
+    effective_expires_at = expire_at (стратегия NO_RESET).
+    """
+    return SubscriptionSchema(
+        id=user.short_uuid,
+        user_id=user.username,
+        traffic_limit=int(user.traffic_limit_bytes // GIGABYTE),
+        connections_limit=user.hwid_device_limit or 0,
+        expires_at=user.expire_at,
+        effective_expires_at=user.expire_at,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+    )
+
+
 class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
     """Usecase создания и продления подписки (create-or-renew)."""
 
@@ -27,23 +44,7 @@ class SubscribeUsecase(Usecase[CreateSubscriptionSchema, SubscriptionSchema]):
     async def __call__(self, data: CreateSubscriptionSchema) -> SubscriptionSchema:
         """Метод для подписки на впн."""
         user = await self._upsert_user(data)
-        return self._to_response(user)
-
-    def _to_response(self, user: UserResponseDto) -> SubscriptionSchema:
-        """Собирает ответ старого контракта из DTO ремны.
-
-        effective_expires_at = expire_at (стратегия NO_RESET).
-        """
-        return SubscriptionSchema(
-            id=user.short_uuid,
-            user_id=user.username,
-            traffic_limit=int(user.traffic_limit_bytes // GIGABYTE),
-            connections_limit=user.hwid_device_limit or 0,
-            expires_at=user.expire_at,
-            effective_expires_at=user.expire_at,
-            created_at=user.created_at,
-            updated_at=user.updated_at,
-        )
+        return user_to_subscription_schema(user)
 
     async def _upsert_user(self, data: CreateSubscriptionSchema) -> UserResponseDto:
         """Создает юзера ремны или продлевает существующего."""
