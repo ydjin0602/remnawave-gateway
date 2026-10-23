@@ -102,7 +102,7 @@ class RedisSettings(BaseModel):
 
 
 class CRONSettings(BaseModel):
-    init_repeat_purchase: str = '0 9 * * *'
+    init_repeat_purchase: str = '0 16 * * *'
 
 
 class Settings(BaseSettings):
