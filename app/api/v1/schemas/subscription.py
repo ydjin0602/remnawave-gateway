@@ -42,3 +42,10 @@ class GetSubscriptionSchema(BaseSchema):
 
 class GetUserSubscriptionSchema(BaseSchema):
     user_id: int
+
+
+class DeleteSubscriptionsSchema(BaseSchema):
+    subscription_ids: list[UUID] = Field(
+        description='Идентификаторы подписок (short_uuid ремны), '
+        'чьих юзеров удалить целиком.',
+    )
