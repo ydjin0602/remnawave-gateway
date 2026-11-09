@@ -7,12 +7,15 @@ from fastapi import Depends as FastAPIDepends
 from fastapi import Request
 from starlette.responses import PlainTextResponse
 from starlette.responses import RedirectResponse
+from starlette.status import HTTP_204_NO_CONTENT
 
 from app.api.utils.security import authenticate_by_api_key
 from app.api.v1.schemas.subscription import CreateSubscriptionSchema
+from app.api.v1.schemas.subscription import DeleteSubscriptionsSchema
 from app.api.v1.schemas.subscription import GetSubscriptionSchema
 from app.api.v1.schemas.subscription import GetUserSubscriptionSchema
 from app.api.v1.schemas.subscription import SubscriptionSchema
+from app.api.v1.usecases.delete_subscription_users import DeleteSubscriptionUsersUsecase
 from app.api.v1.usecases.get_subscription import GetSubscriptionUsecase
 from app.api.v1.usecases.get_user_subscription import GetUserSubscriptionUsecase
 from app.api.v1.usecases.incy_redirect import IncyRedirectUsecase
@@ -35,6 +38,21 @@ async def subscribe(
     usecase: Depends[SubscribeUsecase],
 ) -> SubscriptionSchema:
     return await usecase(data=payload)
+
+
+@ROUTER.delete(
+    '/',
+    name='Удаление юзеров подписок',
+    description='Удаляет юзеров remnawave целиком по short_uuid их подписок: '
+    'для мержа идентичностей — мёртвая сторона не остаётся в панели.',
+    status_code=HTTP_204_NO_CONTENT,
+    dependencies=[FastAPIDepends(authenticate_by_api_key)],
+)
+async def delete_subscription_users(
+    payload: DeleteSubscriptionsSchema,
+    usecase: Depends[DeleteSubscriptionUsersUsecase],
+) -> None:
+    await usecase(data=payload)
 
 
 @ROUTER.get(
