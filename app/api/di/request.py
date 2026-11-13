@@ -19,8 +19,8 @@ class RequestProvider(Provider):
             base_url=config.remnawave.base_url,
             token=config.remnawave.api_key,
             custom_headers={
-                'CF-Access-Client-Id': config.remnawave.cf_client_id,
-                'CF-Access-Client-Secret': config.remnawave.cf_client_secret,
+                'CF-Access-Client-Id': config.remnawave.cf_access_client_id,
+                'CF-Access-Client-Secret': config.remnawave.cf_access_client_secret,
             },
         )
 
