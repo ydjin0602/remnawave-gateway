@@ -52,6 +52,8 @@ class RemnawaveSettings(BaseModel):
     cycle_period_days: int = 90
     min_days_after_expire: int = 30
     stream_page_size: int = 1000
+    cf_access_client_id: str = ''
+    cf_access_client_secret: str = ''
 
 
 class GatewaySettings(BaseModel):
