@@ -8,6 +8,25 @@ from app.api.utils.exceptions import NotFoundError
 from app.api.utils.usecase import Usecase
 from app.api.v1.schemas.subscription import GetSubscriptionSchema
 
+FORWARDED_REQUEST_HEADERS = frozenset(
+    {
+        'user-agent',
+        'accept',
+        'accept-language',
+        'x-hwid',
+        'x-device-os',
+        'x-device-locale',
+        'x-ver-os',
+        'x-app-version',
+        'x-device-model',
+    }
+)
+
+FORWARDED_REQUEST_PREFIXES = (
+    'x-hwid-',
+    'x-device-',
+)
+
 # Заголовки, которые прокидываем от subscription-page клиенту без изменений.
 PASSTHROUGH_HEADERS = (
     'content-type',
@@ -36,9 +55,15 @@ class GetSubscriptionUsecase(Usecase[GetSubscriptionSchema, PlainTextResponse]):
         except RemnawaveNotFoundError as e:
             raise NotFoundError(message='Подписка не найдена!') from e
 
+        upstream_headers = {
+            key: value
+            for key, value in data.headers.items()
+            if key in FORWARDED_REQUEST_HEADERS
+            or key.startswith(FORWARDED_REQUEST_PREFIXES)
+        }
         upstream = await self._http.get(
             sub.subscription_url,
-            headers=data.headers,
+            headers=upstream_headers,
         )
         upstream.raise_for_status()
 
