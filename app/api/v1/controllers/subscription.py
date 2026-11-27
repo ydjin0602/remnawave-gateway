@@ -20,6 +20,7 @@ from app.api.v1.usecases.get_subscription import GetSubscriptionUsecase
 from app.api.v1.usecases.get_user_subscription import GetUserSubscriptionUsecase
 from app.api.v1.usecases.incy_redirect import IncyRedirectUsecase
 from app.api.v1.usecases.subscribe import SubscribeUsecase
+from app.api.v1.usecases.uxway_redirect import UxwayRedirectUsecase
 
 ROUTER = APIRouter(
     route_class=DishkaRoute,
@@ -99,6 +100,25 @@ async def get_incy_subscription(
     request: Request,
     usecase: Depends[GetSubscriptionUsecase],
 ) -> PlainTextResponse:
+    return await usecase(
+        data=GetSubscriptionSchema(
+            subscription_id=subscription_id,
+            headers=request.headers,
+        ),
+    )
+
+
+@ROUTER.get(
+    '/{subscription_id}/uxway_redirect',
+    name='Ручка для редиректа на uxway',
+    description='Редиректит на диплинк uxway',
+    response_class=RedirectResponse,
+)
+async def uxway_redirect(
+    subscription_id: UUID,
+    request: Request,
+    usecase: Depends[UxwayRedirectUsecase],
+) -> RedirectResponse:
     return await usecase(
         data=GetSubscriptionSchema(
             subscription_id=subscription_id,

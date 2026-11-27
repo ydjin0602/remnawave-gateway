@@ -12,6 +12,7 @@ from app.api.v1.usecases.incy_redirect import IncyRedirectUsecase
 from app.api.v1.usecases.init_repeat_purchase import InitRepeatPurchaseUsecase
 from app.api.v1.usecases.remnawave_hook import RemnawaveHookUsecase
 from app.api.v1.usecases.subscribe import SubscribeUsecase
+from app.api.v1.usecases.uxway_redirect import UxwayRedirectUsecase
 
 
 class UsecaseProvider(Provider):
@@ -60,6 +61,11 @@ class UsecaseProvider(Provider):
     async def incy_redirect_scope(self) -> IncyRedirectUsecase:
         """DI Scope для IncyRedirectUsecase."""
         return IncyRedirectUsecase()
+
+    @provide
+    async def uxway_redirect_scope(self) -> UxwayRedirectUsecase:
+        """DI Scope для UxwayRedirectUsecase."""
+        return UxwayRedirectUsecase()
 
     @provide
     async def init_repeat_purchase_scope(
