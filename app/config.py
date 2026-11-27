@@ -71,6 +71,11 @@ class GatewaySettings(BaseModel):
         """Шаблон диплинка автонастройки incy."""
         return f'incy://import/{self.subscription_url_tmp}'
 
+    @property
+    def uxway_redirect_tmp(self) -> str:
+        """Шаблон диплинка автонастройки uxway."""
+        return f'uxway://add/{self.subscription_url_tmp}'
+
 
 class KafkaSettings(BaseModel):
     bootstrap_servers: str = 'localhost:9092'
